@@ -1,0 +1,17 @@
+{
+  "name": "biztime",
+  "version": "1.0.0",
+  "description": "invoice app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Samie Smilz",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.3",
+    "pg": "^8.11.3",
+    "supertest": "^6.3.4"
+  }
+}
