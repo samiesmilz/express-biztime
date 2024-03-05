@@ -20,7 +20,7 @@ beforeEach(async () => {
 //////////// test that the company has been created ///////////
 describe("Test that company has been created", () => {
   test("Create new company", () => {
-    console.log(testCompany);
+    // console.log(testCompany);
     expect(testCompany).toEqual({
       code: "apple",
       name: "Apple",

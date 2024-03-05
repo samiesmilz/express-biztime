@@ -43,7 +43,7 @@ router.post("/", async (req, res, next) => {
       `INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description`,
       [code, name, description]
     );
-    console.log(results.rows[0]);
+    // console.log(results.rows[0]);
     return res.status(201).json({ company: results.rows[0] });
   } catch (error) {
     return next(error);
