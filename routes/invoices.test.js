@@ -110,8 +110,9 @@ describe("Patch /invoices/:id", () => {
     const id = testInvoice.id;
     const res = await request(app).put(`/invoices/${id}`).send({
       amt: 221,
+      paid: true,
     });
-    expect(res.statusCode).toBe(201);
+    expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({
       invoice: {
         amt: 221,
@@ -119,14 +120,14 @@ describe("Patch /invoices/:id", () => {
         add_date: expect.any(String),
         id: expect.any(Number),
         paid: expect.any(Boolean),
-        paid_date: null,
+        paid_date: expect.any(String),
       },
     });
   });
   test("Update a invoice", async () => {
     const id = 0;
     const res = await request(app).patch(`/invoices/${id}`).send({
-      comp_code: "apple",
+      paid: true,
       amt: 203,
     });
     expect(res.statusCode).toBe(404);

@@ -63,22 +63,30 @@ router.post("/", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
-    const { amt } = req.body;
-    if (!amt) {
-      throw new ExpressError("amt must be provided", 400);
+    const { amt, paid } = req.body;
+    if (!amt || !paid) {
+      throw new ExpressError("amt and paid tag must be provided", 400);
     }
-    const results = await db.query(
-      `UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING *`,
-      [amt, id]
-    );
-    if (results.rows.length === 0) {
+    const result = await db.query(`SELECT * FROM invoices where id=$1`, [id]);
+    if (result.rows.length === 0) {
       throw new ExpressError(`Can't find invoice with id: ${id}`, 404);
     }
-    return res.status(201).json({ invoice: results.rows[0] });
+    let { paid_date } = result.rows[0];
+    if (paid && !paid_date) {
+      paid_date = new Date().toISOString();
+    } else if (!paid) {
+      paid_date = null;
+    }
+    const updatedResult = await db.query(
+      `UPDATE invoices SET amt=$1, paid=$2, paid_date=$3 WHERE id=$4 RETURNING *`,
+      [amt, paid, paid_date, id]
+    );
+    return res.status(200).json({ invoice: updatedResult.rows[0] });
   } catch (error) {
     return next(error);
   }
 });
+
 //////// Delete invoice //////
 router.delete("/:id", async (req, res, next) => {
   try {
