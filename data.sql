@@ -21,15 +21,15 @@ CREATE TABLE invoices (
     CONSTRAINT invoices_amt_check CHECK ((amt > (0)::double precision))
 );
 
-CREATE TABLE industries(
+CREATE TABLE industries (
   code text PRIMARY KEY,
-  industry text NOT NULL,
+  industry text NOT NULL
 );
 
-CREATE TABLE companies_industries(
+CREATE TABLE companies_industries (
   id serial PRIMARY KEY,
-  comp_code text NOT NULL REFERENCES companies ON DELETE CASCADE,
-  industry_code text NOT NULL REFERENCES industries ON DELETE CASCADE,
+  comp_code text NOT NULL REFERENCES companies(code) ON DELETE CASCADE,
+  industry_code text NOT NULL REFERENCES industries(code) ON DELETE CASCADE
 );
 
 

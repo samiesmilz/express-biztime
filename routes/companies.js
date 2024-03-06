@@ -9,9 +9,24 @@ const slugify = require("slugify");
 */
 
 //////// Get all companies //////
+// router.get("/", async (req, res, next) => {
+//   try {
+//     const results = await db.query(`SELECT code, name FROM companies`);
+//     return res.json({ companies: results.rows });
+//   } catch (error) {
+//     return next(error);
+//   }
+// });
+
 router.get("/", async (req, res, next) => {
   try {
-    const results = await db.query(`SELECT code, name FROM companies`);
+    const results = await db.query(`
+      SELECT c.code, c.name, array_agg(i.industry) AS industries
+      FROM companies c
+      LEFT JOIN companies_industries ci ON c.code = ci.comp_code
+      LEFT JOIN industries i ON ci.industry_code = i.code
+      GROUP BY c.code, c.name
+    `);
     return res.json({ companies: results.rows });
   } catch (error) {
     return next(error);
@@ -116,6 +131,52 @@ router.get("/:code", async (req, res, next) => {
     return res.json({
       company: { comp_code, name, description, invoices },
     });
+  } catch (error) {
+    return next(error);
+  }
+});
+// inustries
+
+// Add an industry
+router.post("/industries", async (req, res, next) => {
+  try {
+    const { code, industry } = req.body;
+    const result = await db.query(
+      `INSERT INTO industries (code, industry) VALUES ($1, $2) RETURNING *`,
+      [code, industry]
+    );
+    return res.status(201).json({ industry: result.rows[0] });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// List all industries with associated company codes
+router.get("/industries", async (req, res, next) => {
+  try {
+    const results = await db.query(`
+      SELECT i.code, i.industry, array_agg(ci.comp_code) AS companies
+      FROM industries i
+      LEFT JOIN companies_industries ci ON i.code = ci.industry_code
+      GROUP BY i.code, i.industry
+    `);
+    return res.json({ industries: results.rows });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Associate an industry with a company
+router.post("/:comp_code/industries/:industry_code", async (req, res, next) => {
+  try {
+    const { comp_code, industry_code } = req.params;
+    await db.query(
+      `INSERT INTO companies_industries (comp_code, industry_code) VALUES ($1, $2)`,
+      [comp_code, industry_code]
+    );
+    return res
+      .status(201)
+      .json({ message: "Industry associated with company successfully" });
   } catch (error) {
     return next(error);
   }
